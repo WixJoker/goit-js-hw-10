@@ -9,7 +9,7 @@ const DEBOUNCE_DELAY = 300;
 const inputRef = document.querySelector('input#search-box');
 const countryListRef = document.querySelector('.country-list');
 const countryInfoRef = document.querySelector('.country-info');
-const name = inputRef.value.trim();
+let name = inputRef.value.trim();
 
 inputRef.addEventListener(
   'input',
@@ -18,15 +18,43 @@ inputRef.addEventListener(
   }, DEBOUNCE_DELAY)
 );
 
+refs.searchBox.addEventListener('input', debounce(onSearch, DEBOUNCE_DELAY));
+function onSearch(e) {
+  e.preventDefault();
+  if (refs.searchBox.value.trim() !== '') {
+    const searchQery = refs.searchBox.value.trim();
+    fetchCountries(searchQery)
+      .then(renderCountryCard)
+      .catch(error =>
+        Notiflix.Notify.failure('Oops, there is no country with that name')
+      );
+  } else {
+    refs.cardConteiner.innerHTML = [];
+  }
+}
+
 function fetchCountries(name) {
-  const url = `https://restcountries.com/v3.1/${name}?fields=name,capital,population,flags,languages`;
+  const url = `https://restcountries.com/v3.1/2?fields=name,capital,population,flags,languages`;
 
   fetch(url)
     .then(response => response.json())
     .then(name => {
       depictShortFormList(name);
     })
-    .catch(error => console.log('Error!'));
+    .catch(error => console.log('error'));
+}
+
+fetchCountries(name);
+
+function searchCountries(name) {
+  name = name.toLowerCase();
+  let newArray = [];
+
+  for (let i = 0; i < array.length; i += 1) {
+    if (array.innerHTML.toLowerCase().includes(name)) {
+      newArray = newArray.push(i);
+    }
+  }
 }
 
 const createShortForm = item =>
@@ -52,15 +80,17 @@ const depictShortFormList = array => {
 };
 
 const depictFullFormList = array => {
-  const result = createFullFormList(array);
+  const result = createFullForm(array);
   countryInfoRef.insertAdjacentHTML('beforeend', result);
 };
 
-// if (array.length = 1) {
-// depictShortFormList()
-// } else (array.length >= 2 && array.length <= 9) {
-// depictFullFormList()
-// } else (array.length > 10) {
-//     console.log("Too many matches found. Please enter a more specific name.")
+// function inputFunctionality (array) {
+//     if (array.length = 1) {
+//         depictFullFormList()
+//     } else (array.length >= 2 && array.length <= 9) {
+//         depictShortFormList()
+//     } else (array.length > 10) {
+//         console.log("Too many matches found. Please enter a more specific name.")
+//     }
+//     console.log("Oops, there is no country with that name");
 // }
-// console.log("Oops, there is no country with that name");
